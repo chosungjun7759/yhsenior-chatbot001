@@ -1,0 +1,21 @@
+{
+  "entities": {
+    "WelfareInfo": {
+      "title": "WelfareInfo",
+      "description": "Information about welfare center programs and services",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string", "description": "Category of the information (e.g., program, register, refund, info)" },
+        "title": { "type": "string", "description": "Title of the information" },
+        "content": { "type": "string", "description": "Detailed content (HTML allowed for formatting)" }
+      },
+      "required": ["category", "title", "content"]
+    }
+  },
+  "firestore": {
+    "/welfare_info/{infoId}": {
+      "schema": "WelfareInfo",
+      "description": "Collection of welfare center information"
+    }
+  }
+}

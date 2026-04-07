@@ -1,0 +1,5 @@
+{
+  "name": "복지관 안내 챗봇",
+  "description": "어르신들을 위한 복지관 프로그램 및 이용 안내 챗봇입니다. 큰 글씨와 쉬운 메뉴로 구성되어 있습니다.",
+  "requestFramePermissions": []
+}
