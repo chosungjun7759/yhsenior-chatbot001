@@ -182,13 +182,13 @@ export default function App() {
       <div className="chat-container w-full max-w-[600px] h-full flex flex-col bg-white relative shadow-[0_0_20px_rgba(0,0,0,0.1)] pb-[env(safe-area-inset-bottom)]">
         
         {/* Header */}
-        <div className="header bg-[#000000] p-[15px_20px] flex items-center justify-center border-b-2 border-[#87CEEB] shrink-0 z-10 relative">
-          <h1 className="text-[#ffffff] text-[28px] font-bold tracking-[1px]">연희노인복지관 안내</h1>
+        <div className="header bg-[#ffffff] p-[15px_20px] flex items-center justify-center border-b-2 border-[#1E90FF] shrink-0 z-10 relative">
+          <h1 className="text-[#1E90FF] text-[28px] font-[900] tracking-[1px]">연희노인복지관 안내</h1>
           
           {/* Admin Trigger (Absolute positioned to not interfere with centering) */}
           <div className="absolute right-4 flex gap-2">
             {!user ? (
-              <button onClick={handleLogin} className="p-1 text-gray-500 hover:text-gray-300">
+              <button onClick={handleLogin} className="p-1 text-gray-400 hover:text-gray-600">
                 <Settings size={20} />
               </button>
             ) : (
@@ -196,7 +196,7 @@ export default function App() {
                 {isAdmin && (
                   <button onClick={updateTo2026Data} className="text-[10px] bg-gray-700 text-white px-2 py-1 rounded">데이터 갱신</button>
                 )}
-                <button onClick={() => signOut(auth)} className="text-gray-500 hover:text-gray-300">
+                <button onClick={() => signOut(auth)} className="text-gray-400 hover:text-gray-600">
                   <LogOut size={20} />
                 </button>
               </div>
@@ -212,7 +212,7 @@ export default function App() {
           {messages.map((msg) => (
             <div key={msg.id} className={`msg-row flex w-full items-start ${msg.sender === 'bot' ? 'bot justify-start' : 'user justify-end'}`}>
               {msg.sender === 'bot' && (
-                <div className="bot-profile-text w-[68px] h-[68px] rounded-[18px] bg-white border-2 border-[#87CEEB] text-[#1a1a1a] flex items-center justify-center text-[16px] font-[900] text-center leading-[1.2] mr-[12px] shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                <div className="bot-profile-text w-[68px] h-[68px] rounded-[18px] bg-white border-2 border-[#1E90FF] text-[#1E90FF] flex items-center justify-center text-[16px] font-[900] text-center leading-[1.2] mr-[12px] shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                   연희<br/>노인<br/>복지관
                 </div>
               )}
@@ -230,11 +230,11 @@ export default function App() {
         </div>
 
         {/* Menu Grid */}
-        <div className="menu-grid shrink-0 flex flex-col gap-[8px] p-[10px_12px] bg-white border-t-[1.5px] border-[#dddddd] z-10">
-          <button onClick={() => clickMenu('program', '🌸 여가 프로그램 찾기')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">🌸 여가 프로그램</button>
-          <button onClick={() => clickMenu('register', '📝 프로그램 접수 안내')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">📝 접수 안내</button>
-          <button onClick={() => clickMenu('refund', '💰 환불/취소 문의')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">💰 환불 문의</button>
-          <button onClick={() => clickMenu('info', '🏛️ 복지관 이용 안내')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">🏛️ 이용 안내</button>
+        <div className="menu-grid shrink-0 flex flex-col items-center gap-[8px] p-[12px_16px] bg-white border-t-[1.5px] border-[#dddddd] z-10">
+          <button onClick={() => clickMenu('program', '🌸 여가 프로그램 찾기')} className="menu-btn w-full max-w-[450px] bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer flex justify-center items-center text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">🌸 여가 프로그램</button>
+          <button onClick={() => clickMenu('register', '📝 프로그램 접수 안내')} className="menu-btn w-full max-w-[450px] bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer flex justify-center items-center text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">📝 접수 안내</button>
+          <button onClick={() => clickMenu('refund', '💰 환불/취소 문의')} className="menu-btn w-full max-w-[450px] bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer flex justify-center items-center text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">💰 환불 문의</button>
+          <button onClick={() => clickMenu('info', '🏛️ 복지관 이용 안내')} className="menu-btn w-full max-w-[450px] bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer flex justify-center items-center text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">🏛️ 이용 안내</button>
         </div>
 
         {/* Input Area */}
@@ -245,7 +245,7 @@ export default function App() {
             onChange={(e) => setUserQuestion(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && submitQuestion()}
             placeholder="예: 요가반은 언제야?" 
-            className="flex-1 p-[14px_18px] text-[16px] border-[1.5px] border-[#87CEEB] rounded-[24px] outline-none bg-[#f8fcff] focus:border-[#3399cc]"
+            className="flex-1 p-[14px_18px] text-[16px] border-[1.5px] border-[#1E90FF] rounded-[24px] outline-none bg-[#f8fcff] focus:border-[#0066cc]"
           />
           <button 
             onClick={submitQuestion}
