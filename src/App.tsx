@@ -109,9 +109,8 @@ export default function App() {
         title: '🌸 여가 프로그램 찾기', 
         content: "<b>[2026년 1학기 주요 인기 프로그램]</b><br><br>" +
                  "📱 <b>스마트폰 교실</b><br>- 초급: 금 09:30~10:30 (청춘누리)<br>- 중급: 금 11:00~12:00 (청춘나래)<br><br>" +
-                 "🎵 <b>음악 및 댄스</b><br>- 노래교실: 목 10:00~11:30 (청춘마루)<br>- 라인댄스: 월 10:00~11:00 (청춘마루)<br>- 칼림바: 월 10:00~11:00 (청춘나래)<br><br>" +
-                 "🧘 <b>건강 및 요가</b><br>- 의자요가: 화 10:00~11:00 (청춘마루)<br>- 단학기공: 수 10:40~11:40 (청춘마루)<br><br>" +
-                 "💡 더 많은 프로그램은 복지관 1층 게시판을 확인해주세요!" 
+                 "🎵 <b>음악 및 댄스</b><br>- 노래교실: 목 10:00~11:30 (청춘마루)<br>- 라인댄스: 월 10:00~11:00 (청춘마루)<br><br>" +
+                 "🧘 <b>건강 및 요가</b><br>- 의자요가: 화 10:00~11:00 (청춘마루)" 
       },
       { 
         category: 'register', 
@@ -126,7 +125,7 @@ export default function App() {
       { 
         category: 'info', 
         title: '🏛️ 복지관 이용 안내', 
-        content: "<b>[연희노인복지관 이용 안내]</b><br><br>- 운영시간: 평일 오전 9시 ~ 오후 6시<br>- 휴관일: 토요일, 일요일 및 법정 공휴일<br>- 점심식사(무료급식): 낮 12시부터 1층 식당에서 이용 가능합니다." 
+        content: "<b>[연희노인복지관 이용 안내]</b><br><br>- 운영시간: 평일 오전 9시 ~ 오후 6시<br>- 휴관일: 주말 및 공휴일<br>- 점심식사: 낮 12시부터 1층 식당" 
       }
     ];
 
@@ -161,33 +160,30 @@ export default function App() {
       return;
     }
 
-    const currentInfo = infoData.find(item => item.category === selectedCategory);
-    if (!currentInfo) return;
-
     setIsAiLoading(true);
-    setAiReply("");
+    setAiReply("🤖 비서봇: 어르신 잠시만 기다려주세요 답변 준비중입니다... ⏳");
+
+    // Use all available context data as requested
+    const allContextData = infoData.map(item => item.content.replace(/<[^>]*>/g, '')).join(" ");
 
     try {
       const response = await genAI.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `
-          Context Information: ${currentInfo.content.replace(/<[^>]*>/g, '')}
-          User Question: ${userQuestion}
-          
-          Instructions:
-          1. You are a helpful AI assistant for elderly people at a welfare center.
-          2. Answer the user's question based ONLY on the provided context information.
-          3. If the answer is not in the information, politely say you don't know and suggest asking the 1st-floor front desk.
-          4. Keep the tone very polite, warm, and respectful (use honorifics in Korean).
-          5. Use simple and clear language.
-          6. Start your response with "🤖 비서봇: ".
+          당신은 연희노인복지관의 친절하고 예의 바른 안내 챗봇입니다. 
+          어르신들이 보기 편하게 아주 쉬운 말로, 존댓말로 3문장 이내로 짧게 대답하세요. 
+          다음 [복지관 전체 정보]를 바탕으로 어르신의 [질문]에 답변해 주세요. 
+          정보에 없는 내용이면 반드시 '2층 사무실로 문의해주시면 친절히 안내해드리겠습니다.'라고 대답하세요.
+
+          [복지관 전체 정보]: ${allContextData}
+          [질문]: ${userQuestion}
         `,
       });
 
-      setAiReply(response.text || "죄송합니다. 답변을 생성하지 못했습니다.");
+      setAiReply("🤖 비서봇: " + (response.text || "죄송합니다. 답변을 생성하지 못했습니다."));
     } catch (err) {
       console.error("AI Error:", err);
-      setAiReply("🤖 비서봇: 죄송합니다 어르신, 지금은 제가 조금 아파서 대답을 못 하겠어요. 나중에 다시 물어봐 주세요! 😊");
+      setAiReply("🤖 비서봇: 앗, 어르신! 통신이 잠시 끊겼습니다. 2층 사무실로 문의해주시면 친절히 안내해드리겠습니다. 😅");
     } finally {
       setIsAiLoading(false);
     }
@@ -209,7 +205,7 @@ export default function App() {
         {/* Logo and Title Section */}
         <div className="flex flex-col items-center justify-center mb-5">
           <img 
-            src="image_0.png" 
+            src="https://cdn-icons-png.flaticon.com/512/3135/3135682.png" 
             alt="연희노인복지관 로고" 
             className="w-[150px] h-auto mb-2"
             referrerPolicy="no-referrer"
