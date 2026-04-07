@@ -178,26 +178,26 @@ export default function App() {
   const fallbackImg = "https://cdn-icons-png.flaticon.com/512/3135/3135682.png";
 
   return (
-    <div className="flex justify-center min-h-screen h-[100dvh] bg-[#e0e0e0] font-sans overflow-hidden">
+    <div className="flex justify-center min-h-screen h-[100dvh] bg-[#ffffff] font-sans overflow-hidden">
       <div className="chat-container w-full max-w-[600px] h-full flex flex-col bg-white relative shadow-[0_0_20px_rgba(0,0,0,0.1)] pb-[env(safe-area-inset-bottom)]">
         
         {/* Header */}
-        <div className="header bg-[#000000] p-[12px_16px] flex items-center shrink-0 z-10">
-          <div className="logo-bg bg-white rounded-full p-[4px] flex items-center justify-center mr-[12px]">
+        <div className="header bg-[#000000] p-[15px_20px] flex items-center border-b-2 border-[#87CEEB] shrink-0 z-10">
+          <div className="logo-bg bg-white rounded-full p-[4px] flex items-center justify-center mr-[15px] shrink-0">
             <img 
               src={logoBase64} 
               alt="연희노인복지관 로고" 
-              className="h-[36px] w-[36px] object-contain" 
+              className="h-[46px] w-[46px] object-contain" 
               referrerPolicy="no-referrer" 
               onError={(e) => (e.currentTarget.src = fallbackImg)}
             />
           </div>
-          <h1 className="text-[#ffffff] text-[24px] font-bold">연희노인복지관 안내</h1>
+          <h1 className="text-[#ffffff] text-[22px] font-bold">연희노인복지관 안내</h1>
           
           {/* Admin Trigger */}
           <div className="ml-auto flex gap-2">
             {!user ? (
-              <button onClick={handleLogin} className="p-1 text-gray-400 hover:text-gray-200">
+              <button onClick={handleLogin} className="p-1 text-gray-500 hover:text-gray-300">
                 <Settings size={20} />
               </button>
             ) : (
@@ -205,7 +205,7 @@ export default function App() {
                 {isAdmin && (
                   <button onClick={updateTo2026Data} className="text-[10px] bg-gray-700 text-white px-2 py-1 rounded">데이터 갱신</button>
                 )}
-                <button onClick={() => signOut(auth)} className="text-gray-400 hover:text-gray-200">
+                <button onClick={() => signOut(auth)} className="text-gray-500 hover:text-gray-300">
                   <LogOut size={20} />
                 </button>
               </div>
@@ -216,15 +216,15 @@ export default function App() {
         {/* Chat Box */}
         <div 
           ref={chatBoxRef}
-          className="chat-box flex-1 overflow-y-auto p-[16px] flex flex-col gap-[16px] scroll-smooth bg-[#b2c7da]"
+          className="chat-box flex-1 overflow-y-auto p-[16px] flex flex-col gap-[16px] scroll-smooth bg-[#daeaf5]"
         >
           {messages.map((msg) => (
             <div key={msg.id} className={`msg-row flex w-full items-start ${msg.sender === 'bot' ? 'bot justify-start' : 'user justify-end'}`}>
               {msg.sender === 'bot' && (
-                <div className="bot-profile-bg bg-white rounded-[14px] p-[4px] mr-[10px] shrink-0 shadow-sm">
+                <div className="bot-profile-container bg-white rounded-[18px] border-2 border-[#87CEEB] p-[4px] mr-[12px] shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                   <img 
                     src={logoBase64} 
-                    className="bot-profile w-[44px] h-[44px] object-contain" 
+                    className="bot-profile w-[46px] h-[46px] object-contain" 
                     alt="연희 비서" 
                     referrerPolicy="no-referrer" 
                     onError={(e) => (e.currentTarget.src = fallbackImg)}
@@ -232,10 +232,10 @@ export default function App() {
                 </div>
               )}
               <div 
-                className={`bubble max-w-[78%] p-[14px_16px] rounded-[15px] text-[19px] font-medium leading-[1.5] shadow-[0_2px_4px_rgba(0,0,0,0.1)] break-words ${
+                className={`bubble max-w-[78%] p-[14px_16px] rounded-[16px] text-[18px] leading-[1.6] shadow-[0_2px_6px_rgba(0,0,0,0.08)] break-words ${
                   msg.sender === 'bot' 
-                    ? 'bg-white text-[#000000] rounded-tl-[2px]' 
-                    : 'bg-[#fee100] text-[#000000] rounded-tr-[2px]'
+                    ? 'bg-white text-[#333333] rounded-tl-[2px]' 
+                    : 'bg-[#fef01b] text-[#1a1a1a] rounded-tr-[2px]'
                 }`}
                 dangerouslySetInnerHTML={{ __html: msg.text }}
               />
@@ -245,26 +245,26 @@ export default function App() {
         </div>
 
         {/* Menu Grid */}
-        <div className="menu-grid shrink-0 flex flex-col gap-[10px] p-[15px_16px] bg-white border-t-[1px] border-[#dddddd] z-10">
-          <button onClick={() => clickMenu('program', '🌸 여가 프로그램 찾기')} className="menu-btn bg-white border-[2px] border-[#004ea2] p-[15px] rounded-[12px] text-[22px] cursor-pointer text-center font-bold text-[#004ea2] active:bg-[#f0f7ff] transition-all">🌸 여가 프로그램 찾기</button>
-          <button onClick={() => clickMenu('register', '📝 프로그램 접수 안내')} className="menu-btn bg-white border-[2px] border-[#004ea2] p-[15px] rounded-[12px] text-[22px] cursor-pointer text-center font-bold text-[#004ea2] active:bg-[#f0f7ff] transition-all">📝 프로그램 접수 안내</button>
-          <button onClick={() => clickMenu('refund', '💰 환불/취소 문의')} className="menu-btn bg-white border-[2px] border-[#004ea2] p-[15px] rounded-[12px] text-[22px] cursor-pointer text-center font-bold text-[#004ea2] active:bg-[#f0f7ff] transition-all">💰 환불/취소 문의</button>
-          <button onClick={() => clickMenu('info', '🏛️ 복지관 이용 안내')} className="menu-btn bg-white border-[2px] border-[#004ea2] p-[15px] rounded-[12px] text-[22px] cursor-pointer text-center font-bold text-[#004ea2] active:bg-[#f0f7ff] transition-all">🏛️ 복지관 이용 안내</button>
+        <div className="menu-grid shrink-0 flex flex-col gap-[8px] p-[10px_12px] bg-white border-t-[1.5px] border-[#dddddd] z-10">
+          <button onClick={() => clickMenu('program', '🌸 여가 프로그램 찾기')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">🌸 여가 프로그램</button>
+          <button onClick={() => clickMenu('register', '📝 프로그램 접수 안내')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">📝 접수 안내</button>
+          <button onClick={() => clickMenu('refund', '💰 환불/취소 문의')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">💰 환불 문의</button>
+          <button onClick={() => clickMenu('info', '🏛️ 복지관 이용 안내')} className="menu-btn bg-[#87CEEB] border-none p-[16px_20px] rounded-[12px] text-[20px] cursor-pointer text-center font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all">🏛️ 이용 안내</button>
         </div>
 
         {/* Input Area */}
-        <div className="input-area shrink-0 bg-white p-[12px_16px] flex gap-[10px] border-t-[1px] border-[#dddddd] z-10">
+        <div className="input-area shrink-0 bg-white p-[10px_12px] flex gap-[8px] border-t-[1.5px] border-[#dddddd] z-10">
           <input 
             type="text" 
             value={userQuestion}
             onChange={(e) => setUserQuestion(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && submitQuestion()}
-            placeholder="궁금한 내용을 입력하세요" 
-            className="flex-1 p-[14px_18px] text-[18px] border-[1px] border-[#dddddd] rounded-[8px] outline-none focus:border-[#004ea2]"
+            placeholder="예: 요가반은 언제야?" 
+            className="flex-1 p-[14px_18px] text-[16px] border-[1.5px] border-[#87CEEB] rounded-[24px] outline-none bg-[#f8fcff] focus:border-[#3399cc]"
           />
           <button 
             onClick={submitQuestion}
-            className="send-btn bg-[#004ea2] border-none p-[14px_22px] text-[18px] font-bold rounded-[8px] cursor-pointer text-white active:bg-[#003a7a] transition-all shrink-0"
+            className="send-btn bg-[#fef01b] border-none p-[14px_20px] text-[18px] font-bold rounded-[24px] cursor-pointer text-[#1a1a1a] active:bg-[#e6d000] transition-all shrink-0"
           >
             전송
           </button>
