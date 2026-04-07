@@ -124,7 +124,7 @@ export default function App() {
     { keywords: ['월요일', '화요일', '수요일', '목요일', '금요일', '월', '화', '수', '목', '금'], answer: "요일별 프로그램 안내드립니다! 📅<br><br>📌 <b>월요일</b>: 라인댄스 (10:00~11:00)<br>📌 <b>화요일</b>: 의자요가 (10:00~11:00)<br>📌 <b>목요일</b>: 노래교실 (10:00~11:30)<br>📌 <b>금요일</b>: 스마트폰 초급(09:30), 중급(11:00)" }
   ];
 
-  const defaultAnswer = "어르신, 죄송합니다. 그 내용은 제가 정확히 모르겠어요. 😊<br><br>📞 <b>2층 사무실</b>로 문의해주시면 친절히 안내해 드리겠습니다!";
+  const defaultAnswer = "어르신, 죄송합니다. 해당 내용은 제가 바로 안내드리기 어렵습니다. 😊<br><br>📞 <b>2층 사무실</b>로 문의해주시면 친절히 안내해 드리겠습니다!";
 
   const appendMessage = (sender: 'bot' | 'user', text: string) => {
     setMessages(prev => [...prev, { id: Date.now(), sender, text }]);
@@ -182,20 +182,11 @@ export default function App() {
       <div className="chat-container w-full max-w-[600px] h-full flex flex-col bg-white relative shadow-[0_0_20px_rgba(0,0,0,0.1)] pb-[env(safe-area-inset-bottom)]">
         
         {/* Header */}
-        <div className="header bg-[#000000] p-[15px_20px] flex items-center border-b-2 border-[#87CEEB] shrink-0 z-10">
-          <div className="logo-bg bg-white rounded-full p-[4px] flex items-center justify-center mr-[15px] shrink-0">
-            <img 
-              src={logoBase64} 
-              alt="연희노인복지관 로고" 
-              className="h-[46px] w-[46px] object-contain" 
-              referrerPolicy="no-referrer" 
-              onError={(e) => (e.currentTarget.src = fallbackImg)}
-            />
-          </div>
-          <h1 className="text-[#ffffff] text-[22px] font-bold">연희노인복지관 안내</h1>
+        <div className="header bg-[#000000] p-[15px_20px] flex items-center justify-center border-b-2 border-[#87CEEB] shrink-0 z-10 relative">
+          <h1 className="text-[#ffffff] text-[28px] font-bold tracking-[1px]">연희노인복지관 안내</h1>
           
-          {/* Admin Trigger */}
-          <div className="ml-auto flex gap-2">
+          {/* Admin Trigger (Absolute positioned to not interfere with centering) */}
+          <div className="absolute right-4 flex gap-2">
             {!user ? (
               <button onClick={handleLogin} className="p-1 text-gray-500 hover:text-gray-300">
                 <Settings size={20} />
@@ -221,18 +212,12 @@ export default function App() {
           {messages.map((msg) => (
             <div key={msg.id} className={`msg-row flex w-full items-start ${msg.sender === 'bot' ? 'bot justify-start' : 'user justify-end'}`}>
               {msg.sender === 'bot' && (
-                <div className="bot-profile-container bg-white rounded-[18px] border-2 border-[#87CEEB] p-[4px] mr-[12px] shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                  <img 
-                    src={logoBase64} 
-                    className="bot-profile w-[46px] h-[46px] object-contain" 
-                    alt="연희 비서" 
-                    referrerPolicy="no-referrer" 
-                    onError={(e) => (e.currentTarget.src = fallbackImg)}
-                  />
+                <div className="bot-profile-text w-[68px] h-[68px] rounded-[18px] bg-white border-2 border-[#87CEEB] text-[#1a1a1a] flex items-center justify-center text-[16px] font-[900] text-center leading-[1.2] mr-[12px] shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                  연희<br/>노인<br/>복지관
                 </div>
               )}
               <div 
-                className={`bubble max-w-[78%] p-[14px_16px] rounded-[16px] text-[18px] leading-[1.6] shadow-[0_2px_6px_rgba(0,0,0,0.08)] break-words ${
+                className={`bubble max-w-[75%] p-[14px_16px] rounded-[16px] text-[18px] leading-[1.6] shadow-[0_2px_6px_rgba(0,0,0,0.08)] break-words ${
                   msg.sender === 'bot' 
                     ? 'bg-white text-[#333333] rounded-tl-[2px]' 
                     : 'bg-[#fef01b] text-[#1a1a1a] rounded-tr-[2px]'
