@@ -1,20 +1,11 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 연희노인복지관 안내 챗봇
 
-# Run and deploy your AI Studio app
+어르신을 위한 복지관 안내 챗봇입니다. 큰 글씨, 큰 버튼으로 구성했고 AI를 쓰지 않아 비용이 없고 정해진 답만 안내합니다.
 
-This contains everything you need to run your app locally.
+## 안내 정보 수정
+**`src/data.ts` 파일 하나만 고치면 됩니다.** 프로그램 시간표, 접수·환불·식사 안내, 층별 시설, 오시는 길이 모두 이 파일에 있습니다.
 
-View your app in AI Studio: https://ai.studio/apps/2f3ebf33-2da9-4d85-9520-5f3e1e96ebde
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 실행
+1. `npm install`
+2. `npm run dev` → http://localhost:3000
+3. 배포용 빌드: `npm run build` (결과물은 `dist` 폴더)
