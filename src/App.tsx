@@ -11,6 +11,7 @@ import {
   DEFAULT_ANSWER,
   type Answer,
 } from './answer';
+import { canListen, canSpeak, createRecognizer, speak, stopSpeaking, unlockSpeech, type Recognizer } from './speech';
 
 type Message =
   | { id: number; sender: 'user'; text: string }
@@ -21,6 +22,7 @@ const WELCOME: Answer = {
     '안녕하세요 어르신! 😊',
     '연희노인복지관 안내 도우미입니다.',
     '아래 버튼을 누르시거나, 궁금하신 내용을 글자로 입력해 주세요!',
+    ...(canListen() ? ['🎤 버튼을 누르고 말로 물어보셔도 돼요.'] : []),
   ],
 };
 
@@ -37,7 +39,7 @@ const MENU: { label: string; answer: () => Answer }[] = [
 
 let nextId = 1;
 
-function BotBubble({ answer }: { answer: Answer }) {
+function BotBubble({ answer, speaking, onSpeak }: { answer: Answer; speaking: boolean; onSpeak: () => void }) {
   return (
     <div className="bubble max-w-[85%] p-[14px_16px] rounded-[16px] rounded-tl-[2px] text-[19px] leading-[1.6] shadow-[0_2px_6px_rgba(0,0,0,0.08)] break-words bg-white text-[#333333]">
       {answer.lines.map((line, i) => (
@@ -78,6 +80,16 @@ function BotBubble({ answer }: { answer: Answer }) {
           {a.label}
         </a>
       ))}
+      {canSpeak() && (
+        <button
+          onClick={onSpeak}
+          className={`mt-3 px-4 py-2 rounded-[12px] text-[17px] font-bold border-2 ${
+            speaking ? 'bg-[#fff3e0] text-[#e65100] border-[#ffb74d]' : 'bg-[#f3f9ff] text-[#1E90FF] border-[#cfe3f7]'
+          }`}
+        >
+          {speaking ? '⏹ 그만 듣기' : '🔊 소리로 듣기'}
+        </button>
+      )}
     </div>
   );
 }
@@ -85,7 +97,10 @@ function BotBubble({ answer }: { answer: Answer }) {
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([{ id: nextId++, sender: 'bot', answer: WELCOME }]);
   const [userQuestion, setUserQuestion] = useState('');
+  const [listening, setListening] = useState(false);
+  const [speakingId, setSpeakingId] = useState<number | null>(null);
   const chatBoxRef = useRef<HTMLDivElement>(null);
+  const recognizerRef = useRef<Recognizer | null>(null);
 
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -93,19 +108,38 @@ export default function App() {
     }
   }, [messages]);
 
-  const reply = (userText: string, answers: Answer[]) => {
+  const speakMessage = (id: number, answers: Answer[]) => {
+    setSpeakingId(id);
+    speak(answers, () => setSpeakingId(cur => (cur === id ? null : cur)));
+  };
+
+  const toggleSpeak = (id: number, answer: Answer) => {
+    if (speakingId === id) {
+      stopSpeaking();
+      setSpeakingId(null);
+    } else {
+      speakMessage(id, [answer]);
+    }
+  };
+
+  /** readAloud: 말로 물어본 경우 답변을 자동으로 읽어줌 */
+  const reply = (userText: string, answers: Answer[], readAloud = false) => {
+    stopSpeaking();
+    setSpeakingId(null);
     setMessages(prev => [...prev, { id: nextId++, sender: 'user', text: userText }]);
     setTimeout(() => {
-      setMessages(prev => [...prev, ...answers.map(answer => ({ id: nextId++, sender: 'bot' as const, answer }))]);
+      const botMessages = answers.map(answer => ({ id: nextId++, sender: 'bot' as const, answer }));
+      setMessages(prev => [...prev, ...botMessages]);
+      if (readAloud) speakMessage(botMessages[0].id, answers);
     }, 400);
   };
 
-  const submitQuestion = () => {
-    const question = userQuestion.trim();
+  const ask = (text: string, byVoice = false) => {
+    const question = text.trim();
     if (!question) return;
     setUserQuestion('');
     const answers = answerQuestion(question);
-    reply(question, answers);
+    reply(byVoice ? `🎤 ${question}` : question, answers, byVoice);
     // 답하지 못한 질문은 챗봇 개선용으로 저장 (실패해도 화면에는 영향 없음)
     if (answers[0] === DEFAULT_ANSWER) {
       fetch('/api/log', {
@@ -114,6 +148,52 @@ export default function App() {
         body: JSON.stringify({ q: question }),
         keepalive: true,
       }).catch(() => {});
+    }
+  };
+
+  const submitQuestion = () => ask(userQuestion);
+
+  const toggleListening = () => {
+    if (listening) {
+      recognizerRef.current?.stop();
+      return;
+    }
+    const r = createRecognizer();
+    if (!r) return;
+    unlockSpeech(); // 아이폰에서 자동 읽어주기가 되도록 버튼 누를 때 미리 준비
+    stopSpeaking();
+    setSpeakingId(null);
+    recognizerRef.current = r;
+    let finalText = '';
+    r.onresult = e => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const res = e.results[i];
+        if (res.isFinal) finalText += res[0].transcript;
+        else interim += res[0].transcript;
+      }
+      setUserQuestion(finalText + interim);
+    };
+    r.onerror = e => {
+      const msg =
+        e.error === 'not-allowed' || e.error === 'service-not-allowed'
+          ? ['마이크 사용이 허용되지 않았어요.', '휴대폰 설정에서 이 사이트의 마이크를 허용해 주세요.']
+          : e.error === 'no-speech'
+            ? ['잘 듣지 못했어요. 🎤 버튼을 다시 누르고 또박또박 말씀해 주세요.']
+            : null;
+      if (msg) setMessages(prev => [...prev, { id: nextId++, sender: 'bot', answer: { lines: msg } }]);
+    };
+    r.onend = () => {
+      setListening(false);
+      recognizerRef.current = null;
+      if (finalText.trim()) ask(finalText, true);
+    };
+    setUserQuestion('');
+    setListening(true);
+    try {
+      r.start();
+    } catch {
+      setListening(false);
     }
   };
 
@@ -145,7 +225,7 @@ export default function App() {
                   <div className="bot-profile-text w-[60px] h-[60px] rounded-[16px] bg-white border-2 border-[#1E90FF] text-[#1E90FF] flex items-center justify-center text-[14px] font-[900] text-center leading-[1.2] mr-[10px] shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                     연희<br />노인<br />복지관
                   </div>
-                  <BotBubble answer={msg.answer} />
+                  <BotBubble answer={msg.answer} speaking={speakingId === msg.id} onSpeak={() => toggleSpeak(msg.id, msg.answer)} />
                 </>
               ) : (
                 <div className="bubble max-w-[75%] p-[14px_16px] rounded-[16px] rounded-tr-[2px] text-[19px] leading-[1.6] shadow-[0_2px_6px_rgba(0,0,0,0.08)] break-words bg-[#fef01b] text-[#1a1a1a]">
@@ -162,6 +242,7 @@ export default function App() {
             <button
               key={m.label}
               onClick={() => reply(m.label, [m.answer()])}
+              disabled={listening}
               className="menu-btn bg-[#87CEEB] border-none p-[13px_8px] rounded-[12px] text-[19px] cursor-pointer font-bold text-[#1a1a1a] active:bg-[#5bb8e0] transition-all"
             >
               {m.label}
@@ -176,9 +257,20 @@ export default function App() {
             value={userQuestion}
             onChange={e => setUserQuestion(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && submitQuestion()}
-            placeholder="예: 요가반은 언제야?"
+            placeholder={listening ? '듣고 있어요… 말씀하세요' : '예: 요가반은 언제야?'}
             className="flex-1 min-w-0 p-[14px_18px] text-[18px] border-[1.5px] border-[#1E90FF] rounded-[24px] outline-none bg-[#f8fcff] focus:border-[#0066cc]"
           />
+          {canListen() && (
+            <button
+              onClick={toggleListening}
+              aria-label={listening ? '음성 입력 멈추기' : '말로 물어보기'}
+              className={`shrink-0 w-[56px] rounded-full text-[26px] border-2 transition-all ${
+                listening ? 'bg-[#ff5252] border-[#ff5252] text-white animate-pulse' : 'bg-white border-[#1E90FF]'
+              }`}
+            >
+              {listening ? '⏹' : '🎤'}
+            </button>
+          )}
           <button
             onClick={submitQuestion}
             className="send-btn bg-[#fef01b] border-none p-[14px_20px] text-[19px] font-bold rounded-[24px] cursor-pointer text-[#1a1a1a] active:bg-[#e6d000] transition-all shrink-0"
