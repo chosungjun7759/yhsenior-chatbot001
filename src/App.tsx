@@ -8,6 +8,7 @@ import {
   scheduleAnswer,
   servicesAnswer,
   CALL_ACTION,
+  DEFAULT_ANSWER,
   type Answer,
 } from './answer';
 
@@ -103,7 +104,17 @@ export default function App() {
     const question = userQuestion.trim();
     if (!question) return;
     setUserQuestion('');
-    reply(question, answerQuestion(question));
+    const answers = answerQuestion(question);
+    reply(question, answers);
+    // 답하지 못한 질문은 챗봇 개선용으로 저장 (실패해도 화면에는 영향 없음)
+    if (answers[0] === DEFAULT_ANSWER) {
+      fetch('/api/log', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ q: question }),
+        keepalive: true,
+      }).catch(() => {});
+    }
   };
 
   return (
@@ -175,6 +186,9 @@ export default function App() {
             전송
           </button>
         </div>
+        <p className="shrink-0 bg-white px-4 pb-2 text-center text-[13px] text-[#888]">
+          답을 못 드린 질문은 챗봇을 고치는 데 쓰여요. 이름·전화번호는 적지 말아 주세요.
+        </p>
       </div>
     </div>
   );
