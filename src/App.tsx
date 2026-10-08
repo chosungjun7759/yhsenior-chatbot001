@@ -3,9 +3,10 @@ import {
   answerQuestion,
   directionsAnswer,
   faqAnswer,
-  floorsAnswer,
+  infoAnswer,
   phoneAnswer,
   scheduleAnswer,
+  servicesAnswer,
   CALL_ACTION,
   type Answer,
 } from './answer';
@@ -27,10 +28,10 @@ const MENU: { label: string; answer: () => Answer }[] = [
   { label: '📝 접수 안내', answer: () => faqAnswer('register') },
   { label: '💳 수강료', answer: () => faqAnswer('fee') },
   { label: '💰 환불 문의', answer: () => faqAnswer('refund') },
-  { label: '🍱 점심 식사', answer: () => faqAnswer('meal') },
-  { label: '🏛️ 이용 시간', answer: () => faqAnswer('hours') },
+  { label: '🍱 무료 점심', answer: () => faqAnswer('meal') },
+  { label: '🏛️ 이용 안내', answer: infoAnswer },
   { label: '📍 오시는 길', answer: directionsAnswer },
-  { label: '🏢 층별 안내', answer: floorsAnswer },
+  { label: '🌟 복지관 사업', answer: servicesAnswer },
 ];
 
 let nextId = 1;
@@ -39,7 +40,9 @@ function BotBubble({ answer }: { answer: Answer }) {
   return (
     <div className="bubble max-w-[85%] p-[14px_16px] rounded-[16px] rounded-tl-[2px] text-[19px] leading-[1.6] shadow-[0_2px_6px_rgba(0,0,0,0.08)] break-words bg-white text-[#333333]">
       {answer.lines.map((line, i) => (
-        <p key={i} className={i === 0 ? 'font-bold' : ''}>{line}</p>
+        line === ''
+          ? <div key={i} className="h-3" />
+          : <p key={i} className={i === 0 || answer.lines[i - 1] === '' ? 'font-bold' : ''}>{line}</p>
       ))}
       {answer.table && (
         <div className="mt-3 overflow-x-auto">

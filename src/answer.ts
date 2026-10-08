@@ -1,4 +1,4 @@
-import { CENTER, FAQS, FLOORS, PROGRAMS, SCHEDULE_LABEL, TRANSPORT, WEEKDAYS, type Program, type Weekday } from './data';
+import { CENTER, FAQS, FLOORS, PROGRAMS, SCHEDULE_LABEL, SERVICES, TRANSPORT, WEEKDAYS, type Program, type Weekday } from './data';
 
 /** 말풍선 하나에 들어갈 답변 */
 export interface Answer {
@@ -25,7 +25,7 @@ export function scheduleAnswer(): Answer {
 
 export function directionsAnswer(): Answer {
   return {
-    lines: ['📍 오시는 길', CENTER.address],
+    lines: ['📍 오시는 길', CENTER.address, CENTER.parking],
     table: { head: ['정류장·역', '교통편'], rows: TRANSPORT.map(t => [t.how, t.detail]) },
     actions: [MAP_ACTION],
   };
@@ -35,6 +35,19 @@ export function floorsAnswer(): Answer {
   return {
     lines: ['🏢 층별 안내'],
     table: { head: ['층', '시설'], rows: FLOORS.map(f => [f.floor, f.rooms]) },
+  };
+}
+
+/** 이용 시간 + 층별 안내 */
+export function infoAnswer(): Answer {
+  const hours = FAQS.find(f => f.id === 'hours')!;
+  return { ...floorsAnswer(), lines: ['🏛️ 복지관 이용 안내', ...hours.lines, '', '🏢 층별 안내'] };
+}
+
+export function servicesAnswer(): Answer {
+  return {
+    lines: ['🌟 연희노인복지관이 하는 일', '궁금한 사업 이름을 입력해 주시면 자세히 알려 드려요.'],
+    table: { head: ['사업', '내용'], rows: SERVICES.map(s => [s.name, s.desc]) },
   };
 }
 
@@ -81,7 +94,9 @@ export function answerQuestion(question: string, now = new Date()): Answer[] {
   const answers: Answer[] = [];
 
   const day = findDay(q, now);
-  const matchedPrograms = PROGRAMS.filter(p => q.includes(p.name.replace(/\s/g, '')) || has(q, p.keywords));
+  // 과목 이름을 정확히 말하면 그 과목만, 아니면 비슷한 말(키워드)로 찾기
+  const byName = PROGRAMS.filter(p => q.includes(p.name.replace(/\s|\(.*\)/g, '')));
+  const matchedPrograms = byName.length ? byName : PROGRAMS.filter(p => has(q, p.keywords));
 
   if (matchedPrograms.length) {
     let list = matchedPrograms;
@@ -106,7 +121,7 @@ export function answerQuestion(question: string, now = new Date()): Answer[] {
     if (has(q, f.keywords)) answers.push(faqAnswer(f.id));
   }
 
-  if (answers.length < 2 && has(q, ['오시는길', '가는길', '찾아가', '찾아오', '버스', '지하철', '주소', '위치', '정류장', '어떻게가'])) {
+  if (answers.length < 2 && has(q, ['오시는길', '가는길', '찾아가', '찾아오', '버스', '지하철', '주소', '위치', '정류장', '어떻게가', '주차', '자가용', '차가지고', '차를가지고'])) {
     answers.push(directionsAnswer());
   }
   if (answers.length < 2 && has(q, ['층별', '몇층', '시설', '강당', '사무실', '안내데스크', '청춘마루', '청춘나래', '청춘누리'])) {
@@ -118,6 +133,9 @@ export function answerQuestion(question: string, now = new Date()): Answer[] {
 
   if (!answers.length && has(q, ['프로그램', '수업', '강좌', '교실', '과목', '시간표', '뭐있', '무엇이있', '배울'])) {
     answers.push(scheduleAnswer());
+  }
+  if (!answers.length && has(q, ['사업', '하는일', '서비스', '복지관에서'])) {
+    answers.push(servicesAnswer());
   }
 
   return answers.length ? answers : [DEFAULT_ANSWER];
