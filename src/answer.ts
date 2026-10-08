@@ -53,7 +53,7 @@ export function servicesAnswer(): Answer {
 
 export function phoneAnswer(): Answer {
   return {
-    lines: [`📞 복지관 전화번호: ${CENTER.tel}`, '아래 버튼을 누르시면 바로 전화가 걸려요.'],
+    lines: [`📞 복지관 전화번호: ${CENTER.tel}`, `📠 팩스: ${CENTER.fax}`, '아래 버튼을 누르시면 바로 전화가 걸려요.'],
     actions: [CALL_ACTION],
   };
 }
@@ -118,20 +118,23 @@ export function answerQuestion(question: string, now = new Date()): Answer[] {
 
   for (const f of FAQS) {
     if (answers.length >= 2) break;
-    if (has(q, f.keywords)) answers.push(faqAnswer(f.id));
+    if (has(q, f.keywords)) {
+      answers.push(faqAnswer(f.id));
+      if (f.only) return answers;
+    }
   }
 
-  if (answers.length < 2 && has(q, ['오시는길', '가는길', '찾아가', '찾아오', '버스', '지하철', '주소', '위치', '정류장', '어떻게가', '주차', '자가용', '차가지고', '차를가지고'])) {
+  if (answers.length < 2 && has(q, ['오시는길', '가는길', '찾아가', '찾아오', '버스', '지하철', '주소', '위치', '정류장', '어떻게가', '복지관어디', '복지관이어디', '복지관위치', '오는길', '차댈', '차를댈', '차세울', '주차', '자가용', '차가지고', '차를가지고'])) {
     answers.push(directionsAnswer());
   }
-  if (answers.length < 2 && has(q, ['층별', '몇층', '시설', '강당', '사무실', '안내데스크', '청춘마루', '청춘나래', '청춘누리'])) {
+  if (answers.length < 2 && has(q, ['층별', '몇층', '시설', '강당', '사무실', '안내데스크', '경로당', '청춘마루', '청춘나래', '청춘누리'])) {
     answers.push(floorsAnswer());
   }
-  if (answers.length < 2 && has(q, ['전화', '번호', '연락처', '문의'])) {
+  if (answers.length < 2 && has(q, ['전화', '번호', '연락처', '문의', '통화', '담당자', '팩스'])) {
     answers.push(phoneAnswer());
   }
 
-  if (!answers.length && has(q, ['프로그램', '수업', '강좌', '교실', '과목', '시간표', '뭐있', '무엇이있', '배울'])) {
+  if (!answers.length && has(q, ['프로그램', '수업', '강좌', '교실', '과목', '시간표', '뭐있', '무엇이있', '배울', '강의', '배우는'])) {
     answers.push(scheduleAnswer());
   }
   if (!answers.length && has(q, ['사업', '하는일', '서비스', '복지관에서'])) {
